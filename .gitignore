@@ -1,0 +1,13 @@
+.cache/
+.git/
+.vscode/
+blueprints/
+custom_components/
+esphome/
+www/
+secrets.yaml
+.ha_run_lock
+esphome/secrets.yaml
+*.log
+*.db*
+*.fault

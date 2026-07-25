@@ -1,0 +1,16 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Split Files
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+mqtt: !include mqtt.yaml
+secrets: !include secrets.yaml
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+  extra_module_url:
+    - /hacsfiles/custom-sidebar/custom-sidebar-plugin.js
+    - /local/clock-weather-card.js

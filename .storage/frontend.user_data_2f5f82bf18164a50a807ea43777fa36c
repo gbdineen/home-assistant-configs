@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "frontend.user_data_2f5f82bf18164a50a807ea43777fa36c",
+  "data": {
+    "theme": {
+      "dark": true
+    },
+    "core": {
+      "showEntityIdPicker": true
+    },
+    "sidebar": {
+      "panelOrder": [
+        "cedar-basecamp-opps",
+        "home",
+        "map",
+        "energy",
+        "logbook",
+        "history",
+        "hacs",
+        "media-browser",
+        "a0d7b954_vscode",
+        "todo"
+      ],
+      "hiddenPanels": []
+    }
+  }
+}

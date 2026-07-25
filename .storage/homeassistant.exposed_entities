@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "homeassistant.exposed_entities",
+  "data": {
+    "assistants": {},
+    "exposed_entities": {
+      "conversation.home_assistant": {
+        "assistants": {
+          "conversation": {
+            "should_expose": false
+          }
+        }
+      },
+      "zone.home": {
+        "assistants": {
+          "conversation": {
+            "should_expose": false
+          }
+        }
+      },
+      "sun.sun": {
+        "assistants": {
+          "conversation": {
+            "should_expose": false
+          }
+        }
+      },
+      "light.staircase_staircase": {
+        "assistants": {
+          "cloud.google_assistant": {
+            "should_expose": false
+          },
+          "cloud.alexa": {
+            "should_expose": false
+          }
+        }
+      },
+      "light.the_shack_hue_the_shack_hue": {
+        "assistants": {
+          "cloud.google_assistant": {
+            "should_expose": false
+          },
+          "cloud.alexa": {
+            "should_expose": false
+          }
+        }
+      }
+    }
+  }
+}

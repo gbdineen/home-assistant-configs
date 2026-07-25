@@ -11,3 +11,9 @@ esphome/secrets.yaml
 *.log
 *.db*
 *.fault
+.storage/
+.cloud/acme_account.pem
+.cloud/production_auth.json
+.cloud/acme_reg.json
+.cloud/remote_private.pem
+.cloud/remote_fullchain.pem

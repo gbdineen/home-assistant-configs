@@ -1,1 +1,27 @@
+binary_sensor:
+  - name: "Downstairs Landing PIR Sensor"
+    unique_id: downstairs_landing_pir_sensor
+    state_topic: "downstairs_landing/motion"
+    payload_on: "On"
+    payload_off: "Off"
+    device_class: motion
+
 sensor:
+  - name: "Moisture Sensor 1"
+    unique_id: moisture_sensor_1
+    state_topic: "moisture_sensors/sensor_1"
+    unit_of_measurement: "%"
+    device_class: moisture
+    value_template: "{{ value_json.Percentage }}"
+  - name: "Moisture Sensor 1 Battery State"
+    unique_id: moisture_sensor_1_battery_state
+    state_topic: "battery_sensor/sensor_1"
+    device_class: "battery"
+    unit_of_measurement: "%"
+    value_template: "{{ value_json.Percentage }}"
+  - name: "Moisture Sensor 1 Battery Voltage"
+    unique_id: moisture_sensor_1_battery_voltage
+    state_topic: "battery_sensor/sensor_1"
+    device_class: "voltage"
+    unit_of_measurement: "V"
+    value_template: "{{ value_json.Voltage }}"

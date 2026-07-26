@@ -1,1 +1,82 @@
-[]
+- id: '1785023407344'
+  alias: Downstairs Landing Motion Detected Lights On
+  description: ''
+  triggers:
+  - trigger: motion.detected
+    target:
+      label_id: motion_sensors
+    options:
+      behavior: each
+  conditions:
+  - condition: switch.is_off
+    target:
+      entity_id: switch.pause_downstairs_landing
+    options:
+      for: 00:00:00
+  actions:
+  - action: timer.start
+    metadata: {}
+    target:
+      entity_id: timer.stairs_timer
+    data: {}
+  - if:
+    - condition: time
+      after: 04:00:00
+      before: '22:00:00'
+    then:
+    - action: light.toggle
+      metadata: {}
+      data:
+        transition: 2
+        brightness_pct: 45
+      target:
+        entity_id:
+        - light.stairs
+      note: 45% brightness during the day
+    - action: light.toggle
+      metadata: {}
+      data:
+        transition: 2
+        brightness_pct: 100
+      target:
+        entity_id: light.staircase_downstairs_landing
+      note: 100% brightness during the day
+    else:
+    - action: light.toggle
+      metadata: {}
+      target:
+        entity_id: light.stairs
+      data:
+        transition: 2
+        brightness_pct: 30
+      note: 30% brightness at night. No landing light.
+  mode: single
+- id: '1785026500925'
+  alias: Stairs Timer Finish Lights Off
+  description: ''
+  triggers:
+  - trigger: timer.finished
+    target:
+      entity_id: timer.stairs_timer
+    options:
+      for: 00:00:00
+  conditions: []
+  actions:
+  - action: light.turn_off
+    metadata: {}
+    target:
+      entity_id: light.stairs
+    data:
+      transition: 2
+  - action: light.turn_off
+    metadata: {}
+    target:
+      entity_id: light.staircase_downstairs_landing
+    data:
+      transition: 2
+  - action: switch.turn_off
+    metadata: {}
+    target:
+      entity_id: switch.upstairs_landing_kasa_switch
+    data: {}
+  mode: single

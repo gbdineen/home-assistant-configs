@@ -11,7 +11,7 @@ sensor:
     unique_id: moisture_sensor_1
     state_topic: "moisture_sensors/sensor_1"
     unit_of_measurement: "%"
-    device_class: moisture
+    device_class: "moisture"
     value_template: "{{ value_json.Percentage }}"
   - name: "Moisture Sensor 1 Battery State"
     unique_id: moisture_sensor_1_battery_state

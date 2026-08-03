@@ -2,11 +2,11 @@
   alias: Downstairs Landing Motion Detected Lights On
   description: ''
   triggers:
-  - trigger: motion.detected
-    target:
-      label_id: motion_sensors
-    options:
-      behavior: each
+  - trigger: state
+    entity_id:
+    - binary_sensor.downstairs_landing_pir_sensor
+    to:
+    - 'on'
   conditions:
   - condition: switch.is_off
     target:
@@ -24,32 +24,26 @@
       after: 04:00:00
       before: '22:00:00'
     then:
-    - action: light.toggle
-      metadata: {}
-      data:
-        transition: 2
-        brightness_pct: 45
-      target:
-        entity_id:
-        - light.stairs
-      note: 45% brightness during the day
-    - action: light.toggle
-      metadata: {}
-      data:
-        transition: 2
-        brightness_pct: 100
-      target:
-        entity_id: light.staircase_downstairs_landing
-      note: 100% brightness during the day
-    else:
-    - action: light.toggle
+    - action: light.turn_on
       metadata: {}
       target:
         entity_id: light.stairs
       data:
-        transition: 2
         brightness_pct: 30
-      note: 30% brightness at night. No landing light.
+    - action: light.turn_on
+      metadata: {}
+      target:
+        entity_id: light.staircase_downstairs_landing
+      data:
+        brightness_pct: 99
+    else:
+    - action: light.turn_on
+      metadata: {}
+      target:
+        entity_id: light.stairs
+      data:
+        transition: 1
+        brightness_pct: 30
   mode: single
 - id: '1785026500925'
   alias: Stairs Timer Finish Lights Off
@@ -67,16 +61,239 @@
     target:
       entity_id: light.stairs
     data:
-      transition: 2
+      transition: 1
   - action: light.turn_off
     metadata: {}
     target:
       entity_id: light.staircase_downstairs_landing
-    data:
-      transition: 2
+    data: {}
   - action: switch.turn_off
     metadata: {}
     target:
       entity_id: switch.upstairs_landing_kasa_switch
     data: {}
   mode: single
+- id: '1785109651210'
+  alias: Turn on Shack A/C above 78
+  description: ''
+  triggers:
+  - trigger: temperature.crossed_threshold
+    target:
+      entity_id: sensor.radio_shack_temperature_sensor
+    options:
+      behavior: each
+      threshold:
+        type: above
+        value:
+          active_choice: number
+          unit_of_measurement: °F
+          number: 79
+      for:
+        hours: 0
+        minutes: 1
+        seconds: 0
+  conditions:
+  - condition: time
+    after: '15:45:00'
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    enabled: false
+  actions:
+  - action: select.select_option
+    metadata: {}
+    target:
+      entity_id: select.radio_shack_sofabaton_hub_activity
+    data:
+      option: A/C
+  mode: single
+- id: '1785117355375'
+  alias: Matrix Weather Cycle Spokane
+  description: ''
+  triggers:
+  - trigger: timer.finished
+    target:
+      entity_id: timer.radio_shack_matrix_weather_cycle
+    options:
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 0
+    enabled: true
+  conditions:
+  - condition: light.is_on
+    target:
+      entity_id: light.matrix
+    options:
+      behavior: any
+      for: 00:00:00
+  - condition: light.is_on
+    target:
+      entity_id: light.matrix_main
+    options:
+      behavior: any
+      for: 00:00:00
+  - condition: light.is_on
+    target:
+      entity_id: light.matrix_segment_1
+    options:
+      behavior: any
+      for: 00:00:00
+  actions:
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: counter.matrix_weather_cycle_counter
+        below: 2
+        above: 0
+      sequence:
+      - action: rest_command.wled_matrix_top_text
+        metadata: {}
+        data:
+          text: RS:{{ states('sensor.radio_shack_temperature_sensor') | float(0) |
+            round }}°F
+      - action: rest_command.wled_matrix_bottom_text
+        metadata: {}
+        data:
+          text: RH:{{ states('sensor.radio_shack_humdity_sensor') | float(0) | round
+            }}%
+    - conditions:
+      - condition: numeric_state
+        entity_id: counter.matrix_weather_cycle_counter
+        above: 1
+        below: 3
+      sequence:
+      - action: weather.get_forecasts
+        target:
+          entity_id:
+          - weather.weather_spokane
+        data:
+          type: daily
+        response_variable: forecast_data
+      - action: rest_command.wled_matrix_top_text
+        metadata: {}
+        data:
+          text: S{{ states('sensor.weather_spokane_temperature') | float(0) | round(0)
+            }}/RS{{  states('sensor.radio_shack_temperature_sensor') | float(0) |
+            round(0) }}
+      - action: rest_command.wled_matrix_bottom_text
+        metadata: {}
+        data:
+          text: '{% set spokaneForecastHigh =  forecast_data[''weather.weather_spokane''].forecast[0].temperature
+            %}
+
+
+            {% set spokaneForecastLow =  forecast_data[''weather.weather_spokane''].forecast[0].templow  %}
+
+
+            {{ spokaneForecastHigh }}°F/{{spokaneForecastLow}}°F
+
+            '
+    - conditions:
+      - condition: numeric_state
+        entity_id: counter.matrix_weather_cycle_counter
+        above: 2
+        below: 4
+      sequence:
+      - action: rest_command.wled_matrix_top_text
+        metadata: {}
+        data:
+          text: '{{ states(''sensor.weather_spokane_wind_speed'') | int }}MPH/{{ states(''sensor.weather_spokane_wind_direction'')
+            | string }}'
+      - action: rest_command.wled_matrix_bottom_text
+        metadata: {}
+        data:
+          text: '{{ states(''sensor.weather_spokane_condition'') }}'
+  - action: timer.start
+    metadata: {}
+    target:
+      entity_id: timer.radio_shack_matrix_weather_cycle
+    data: {}
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: counter.matrix_weather_cycle_counter
+        below: 3
+      sequence:
+      - action: counter.increment
+        metadata: {}
+        target:
+          entity_id: counter.matrix_weather_cycle_counter
+        data: {}
+    - conditions:
+      - condition: counter.is_value
+        target:
+          entity_id: counter.matrix_weather_cycle_counter
+        options:
+          threshold:
+            type: between
+            value_min:
+              active_choice: number
+              number: 2
+            value_max:
+              active_choice: number
+              number: 4
+      sequence:
+      - action: counter.reset
+        metadata: {}
+        target:
+          entity_id: counter.matrix_weather_cycle_counter
+        data: {}
+- id: '1785192593867'
+  alias: Living Room Presence Detected Lights On
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.living_room_esphome_living_room_presence
+    from:
+    - 'off'
+    - 'on'
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: switch.is_off
+        target:
+          entity_id: switch.pause_living_room
+        options:
+          behavior: any
+          for: 00:00:00
+      - condition: state
+        entity_id: fan.lady_land_fan
+        state:
+        - false
+        attribute: oscillating
+      sequence:
+      - action: light.toggle
+        metadata: {}
+        target:
+          entity_id: light.living_room_living_room
+        data: {}
+  mode: single
+- id: '1785710476299'
+  alias: NASA FIRMS — fire within a set distance
+  description: ''
+  use_blueprint:
+    path: bangboomben/fire_within_distance.yaml
+    input:
+      distance_sensor: sensor.firms_47_64_117_43_nearest_hotspot
+      notification:
+      - action: notify.notify
+        metadata: {}
+        data:
+          message: Fire Nearby
+          title: Fire Alert
+          target: notify.djs_iphone
+- id: '1785710518256'
+  alias: Zone Notification
+  description: ''
+  use_blueprint:
+    path: homeassistant/notify_leaving_zone.yaml
+    input:
+      person_entity: person.guy_dineen
+      zone_entity: zone.home
+      notify_device: 2847f3f91028a9d9f1739b677fed1775

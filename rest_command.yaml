@@ -1,0 +1,27 @@
+wled_matrix_top_text:
+  url: "http://10.0.0.10/json/state"
+  method: POST
+  content_type: "application/json"
+  payload: >
+    {
+      "seg": [
+        {
+          "id": 0,
+          "n": "{{ text }}"
+        }
+      ]
+    }
+
+wled_matrix_bottom_text:
+  url: "http://matrix.local/json/state"
+  method: POST
+  content_type: "application/json"
+  payload: >
+    {
+      "seg": [
+        {
+          "id": 1,
+          "n": "{{ text }}"
+        }
+      ]
+    }

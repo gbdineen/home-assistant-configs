@@ -249,8 +249,7 @@
   - trigger: state
     entity_id:
     - binary_sensor.living_room_esphome_living_room_presence
-    from:
-    - 'off'
+    to:
     - 'on'
   conditions: []
   actions:
@@ -262,17 +261,22 @@
         options:
           behavior: any
           for: 00:00:00
-      - condition: state
-        entity_id: fan.lady_land_fan
-        state:
-        - false
-        attribute: oscillating
-      sequence:
-      - action: light.toggle
-        metadata: {}
+      - condition: fan.is_off
         target:
-          entity_id: light.living_room_living_room
-        data: {}
+          entity_id: fan.living_room_fan
+        options:
+          for: 00:00:00
+        enabled: true
+      - condition: time
+        after: 04:00:00
+        before: '22:00:00'
+      sequence:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 100
+        target:
+          entity_id: light.living_room_lights
   mode: single
 - id: '1785710476299'
   alias: NASA FIRMS — fire within a set distance
@@ -297,3 +301,113 @@
       person_entity: person.guy_dineen
       zone_entity: zone.home
       notify_device: 2847f3f91028a9d9f1739b677fed1775
+- id: '1785802357815'
+  alias: Matrix on Start Weather Timer
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - light.matrix_main
+    to:
+    - 'on'
+  conditions: []
+  actions:
+  - action: timer.start
+    metadata: {}
+    target:
+      entity_id: timer.radio_shack_matrix_weather_cycle
+    data: {}
+  mode: single
+- id: '1785822668610'
+  alias: Living Room No Presence Lights Off
+  description: ''
+  triggers:
+  - trigger: occupancy.cleared
+    target:
+      entity_id: binary_sensor.living_room_esphome_living_room_presence
+    options:
+      behavior: each
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 30
+  conditions: []
+  actions:
+  - action: light.turn_off
+    metadata: {}
+    data:
+      transition: 2
+    target:
+      entity_id: light.living_room_lights
+  mode: single
+- id: '1785823356878'
+  alias: Matrix Off Weather Cycle Finish
+  description: ''
+  triggers:
+  - trigger: light.turned_off
+    target:
+      entity_id: light.matrix_main
+    options:
+      behavior: each
+      for: 00:00:00
+  conditions: []
+  actions:
+  - action: timer.finish
+    metadata: {}
+    target:
+      entity_id: timer.radio_shack_matrix_weather_cycle
+    data: {}
+  - action: counter.reset
+    metadata: {}
+    target:
+      entity_id: counter.matrix_weather_cycle_counter
+    data: {}
+  mode: single
+- id: '1785898043706'
+  alias: RGB 1 On COB 1 Off
+  description: ''
+  triggers:
+  - trigger: light.turned_on
+    target:
+      entity_id: light.radio_shack_circle_light_1_rgb_1
+    options:
+      behavior: each
+      for: 00:00:00
+  conditions: []
+  actions:
+  - action: light.turn_off
+    metadata: {}
+    target:
+      entity_id: light.radio_shack_circle_light_1_cob_1
+    data: {}
+  - action: select.select_option
+    metadata: {}
+    target:
+      entity_id: select.circle_light_1_preset
+    data:
+      option: RGB1 Default
+  mode: single
+- id: '1785898121216'
+  alias: COB 1 on RGB 1 Off
+  description: ''
+  triggers:
+  - trigger: light.turned_on
+    target:
+      entity_id: light.radio_shack_circle_light_1_cob_1
+    options:
+      behavior: each
+      for: 00:00:00
+  conditions: []
+  actions:
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.radio_shack_circle_light_1_rgb_1
+  - action: select.select_option
+    metadata: {}
+    target:
+      entity_id: select.circle_light_1_preset
+    data:
+      option: COB 1 Default
+  mode: single
